@@ -28,6 +28,10 @@ public class KafkaConfig {
         configProps.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         configProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        configProps.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, "1000"); // 1초
+        configProps.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "1000"); // 한 번에 최대 1000개 레코드
+        configProps.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, "1"); // 최소 1바이트
+        configProps.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, "100"); // 최대 100ms 대기
         return new DefaultKafkaConsumerFactory<>(configProps);
     }
 
@@ -36,6 +40,7 @@ public class KafkaConfig {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = 
             new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
+        factory.setConcurrency(3); // 3개의 스레드에서 동시에 메시지 처리
         return factory;
     }
 } 
