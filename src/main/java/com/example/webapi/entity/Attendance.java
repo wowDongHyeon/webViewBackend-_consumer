@@ -46,4 +46,7 @@ public class Attendance {
 
     @Column(name = "test_seq")
     private int testSeq;
+
+    @Column(name = "uuid", length = 100)
+    private String uuid;
 } 

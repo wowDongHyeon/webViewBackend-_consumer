@@ -14,5 +14,5 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
     @Query("SELECT COUNT(a) FROM Attendance a WHERE a.lectureName = :lectureName AND a.classTime = :classTime AND a.status = '출석'")
     Long countAttendanceByLectureAndTime(@Param("lectureName") String lectureName, @Param("classTime") String classTime);
 
-    Optional<Attendance> findByTestSeq(int testSeq);
+    Optional<Attendance> findByUuid(String uuid);
 } 

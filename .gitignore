@@ -38,3 +38,4 @@ out/
 app.log
 logs/app.log
 *.log
+*.gz
