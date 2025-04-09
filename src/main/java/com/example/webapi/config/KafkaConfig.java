@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.listener.ContainerProperties;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,6 +33,7 @@ public class KafkaConfig {
         configProps.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "500"); // 500개로 감소
         configProps.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, "1");
         configProps.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, "5000"); // 5초로 증가
+        configProps.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false"); // 자동 커밋 비활성화
         return new DefaultKafkaConsumerFactory<>(configProps);
     }
 
@@ -41,6 +43,7 @@ public class KafkaConfig {
             new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         factory.setConcurrency(3); // 3개의 스레드에서 동시에 메시지 처리
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE); // 수동 커밋 설정
         return factory;
     }
 } 
