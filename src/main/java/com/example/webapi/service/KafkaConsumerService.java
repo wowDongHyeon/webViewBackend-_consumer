@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -26,41 +25,47 @@ public class KafkaConsumerService {
     private String topic;
 
     @KafkaListener(topics = "${spring.kafka.consumer.topic}", groupId = "${spring.kafka.consumer.group-id}")
-    @Transactional
     public void consume(String message, Acknowledgment ack) {
-        log.info("Received message from topic {}: {}", topic, message);
-        
+        String messageId = null;
         try {
             // Parse the message to Attendance object
             Attendance attendance = objectMapper.readValue(message, Attendance.class);
-            log.info("Deserialized attendance object: {}", attendance);
+            messageId = attendance.getUuid();
+            log.info("Processing message with UUID: {}", messageId);
             
-            // Check for duplicate test_seq
-            // Optional<Attendance> existingAttendance = attendanceRepository.findByTestSeq(attendance.getTestSeq());
-            // if (existingAttendance.isPresent()) {
-            //     log.info("Duplicate attendance record found for test_seq: {}", attendance.getTestSeq());
-            //     ack.acknowledge(); // 중복은 성공으로 처리
-            //     return;
-            // }
+            // Process the message
+            processMessage(attendance);
             
-            // Set check time to current time
-            attendance.setCheckTime(LocalDateTime.now());
-            
-            // If status is not set, default to "미정"
-            if (attendance.getStatus() == null) {
-                attendance.setStatus("미정");
-            }
-            
-            // Save the attendance record
-            Attendance savedAttendance = attendanceRepository.save(attendance);
-            log.info("Successfully saved attendance record with ID: {}", savedAttendance.getAttendanceId());
-            
-            // 수동 커밋
+            // Acknowledge the message
             ack.acknowledge();
+            log.info("Successfully processed message with UUID: {}", messageId);
             
         } catch (Exception e) {
-            log.error("Error processing message: {}", message, e);
-            // 예외 발생 시 커밋하지 않음 - 재처리 가능
+            log.error("Error processing message {}: {}", messageId, message, e);
+            // Don't acknowledge - message will be reprocessed
         }
+    }
+
+    @Transactional
+    protected void processMessage(Attendance attendance) {
+        // Check if attendance already exists
+        if (attendanceRepository.existsById(attendance.getUuid())) {
+            log.info("Attendance record already exists for UUID: {}", attendance.getUuid());
+            return;
+        }
+        
+        // Set check time to current time if not set
+        if (attendance.getCheckTime() == null) {
+            attendance.setCheckTime(LocalDateTime.now());
+        }
+        
+        // If status is not set, default to "미정"
+        if (attendance.getStatus() == null) {
+            attendance.setStatus("미정");
+        }
+        
+        // Save the attendance record
+        attendanceRepository.save(attendance);
+        log.info("Saved new attendance record with UUID: {}", attendance.getUuid());
     }
 } 

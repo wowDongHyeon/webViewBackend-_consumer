@@ -30,10 +30,11 @@ public class KafkaConfig {
         configProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         configProps.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, "300000"); // 5분으로 증가
-        configProps.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "1000"); // 한 번에 최대 1000개 레코드
-        configProps.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, "1"); // 최소 1바이트
-        configProps.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, "100"); // 최대 100ms 대기
-        configProps.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true"); // 자동 커밋 비활성화
+        configProps.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "500"); // 500개로 감소
+        configProps.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, "1");
+        configProps.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, "5000"); // 5초로 증가
+        configProps.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false"); // 자동 커밋 비활성화
+        configProps.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "1000"); // 자동 커밋 간격 설정 (사용되지 않음)
         return new DefaultKafkaConsumerFactory<>(configProps);
     }
 
@@ -42,9 +43,9 @@ public class KafkaConfig {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = 
             new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
-        factory.setConcurrency(3); // 3개의 스레드에서 동시에 메시지 처리
-        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE); // 수동 커밋 설정
-        factory.setBatchListener(false); // 단일 메시지 리스너
+        factory.setConcurrency(3);
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
+        factory.setBatchListener(false);
         return factory;
     }
 } 

@@ -9,9 +9,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "attendance", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"test_seq"})
-})
+@Table(name = "attendance")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -19,9 +17,8 @@ import java.time.LocalDateTime;
 public class Attendance {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "attendance_id")
-    private Long attendanceId;
+    @Column(name = "uuid", length = 36)
+    private String uuid;
 
     @Column(name = "lecture_name", nullable = false, length = 100)
     private String lectureName;
@@ -46,7 +43,4 @@ public class Attendance {
 
     @Column(name = "test_seq")
     private int testSeq;
-
-    @Column(name = "uuid", length = 100)
-    private String uuid;
 } 
