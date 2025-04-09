@@ -9,7 +9,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "attendance")
+@Table(name = "attendance", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"test_seq"})
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -41,4 +43,7 @@ public class Attendance {
 
     @Column(name = "student_name", length = 100)
     private String studentName;
+
+    @Column(name = "test_seq")
+    private int testSeq;
 } 

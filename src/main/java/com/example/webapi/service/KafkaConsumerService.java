@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -32,6 +33,13 @@ public class KafkaConsumerService {
             // Parse the message to Attendance object
             Attendance attendance = objectMapper.readValue(message, Attendance.class);
             log.info("Deserialized attendance object: {}", attendance);
+            
+            // Check for duplicate test_seq
+            Optional<Attendance> existingAttendance = attendanceRepository.findByTestSeq(attendance.getTestSeq());
+            if (existingAttendance.isPresent()) {
+                log.info("Duplicate attendance record found for test_seq: {}", attendance.getTestSeq());
+                return;
+            }
             
             // Set check time to current time
             attendance.setCheckTime(LocalDateTime.now());
